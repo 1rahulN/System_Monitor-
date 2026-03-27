@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>{{ title }} - Workstations</title>
+
+<meta http-equiv="refresh" content="15">
+
+<style>
+body{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background:#f0f4f8;
+    padding:15px;
+    margin:0;
+}
+
+.navbar{
+    background:#1e293b;
+    color:white;
+    padding:15px 20px;
+    border-radius:8px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+    box-shadow:0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar a{
+    color:white;
+    text-decoration:none;
+    margin-left:15px;
+    font-size:14px;
+    padding:5px 10px;
+    border-radius:4px;
+    transition:background 0.3s;
+}
+
+.navbar a:hover{
+    background:#2d3a4f;
+}
+
+/* GRID */
+.dashboard{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap:20px;
+}
+
+/* CARD */
+.card{
+    background:white;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    padding:0;
+    overflow:hidden;
+    transition:transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 4px 12px rgba(0,0,0,0.12);
+}
+
+.card-header{
+    background:#f8fafc;
+    padding:15px;
+    border-bottom:2px solid #e2e8f0;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.card-header h3{
+    margin:0;
+    font-size:18px;
+    color:#1e293b;
+}
+
+.card-body{
+    padding:15px;
+}
+
+/* Status */
+.status-online{
+    color:#10b981;
+    font-weight:bold;
+    font-size:12px;
+}
+
+.status-offline{
+    color:#ef4444;
+    font-weight:bold;
+    font-size:12px;
+}
+
+/* Metrics */
+.metric{
+    margin-bottom:15px;
+}
+
+.metric-label{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom:5px;
+    font-size:12px;
+    color:#475569;
+}
+
+.metric-value{
+    font-weight: bold;
+    color:#1e293b;
+}
+
+.progress{
+    background:#e2e8f0;
+    width:100%;
+    height:8px;
+    border-radius:4px;
+    overflow:hidden;
+}
+
+.bar{
+    height:8px;
+    border-radius:4px;
+    transition: width 0.3s ease;
+}
+
+/* Disk section */
+.disk-section{
+    margin:15px 0;
+}
+
+.disk-section h4{
+    margin:10px 0 8px;
+    font-size:13px;
+    color:#475569;
+    border-left:3px solid #f97316;
+    padding-left:8px;
+}
+
+.disk-item{
+    margin-bottom:10px;
+    padding:8px;
+    background:#f8fafc;
+    border-radius:8px;
+}
+
+.disk-header{
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom:5px;
+    font-size:12px;
+}
+
+.disk-details{
+    display: flex;
+    justify-content: space-between;
+    font-size:10px;
+    color:#64748b;
+    margin-top:5px;
+}
+
+/* Process list */
+.process-section h4{
+    margin:15px 0 8px;
+    font-size:13px;
+    color:#475569;
+    border-left:3px solid #3b82f6;
+    padding-left:8px;
+}
+
+.process-list{
+    list-style:none;
+    padding:0;
+    margin:0;
+}
+
+.process-list li{
+    font-size:11px;
+    padding:5px;
+    border-bottom:1px solid #e2e8f0;
+    display:flex;
+    justify-content:space-between;
+}
+
+.process-list li:last-child{
+    border-bottom:none;
+}
+
+.process-name{
+    font-weight:500;
+    color:#1e293b;
+}
+
+.process-cpu{
+    color:#3b82f6;
+    font-weight:bold;
+}
+
+/* Empty state */
+.empty-state{
+    color:#94a3b8;
+    font-style:italic;
+    font-size:12px;
+    text-align:center;
+    padding:10px;
+}
+
+/* Badges */
+.badge{
+    display:inline-block;
+    padding:2px 6px;
+    border-radius:4px;
+    font-size:10px;
+    font-weight:bold;
+}
+
+.badge-warning{
+    background:#fed7aa;
+    color:#9b4d00;
+}
+
+.badge-danger{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard{
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <div><strong>{{ title }}</strong></div>
+    <div>
+        <a href="/">🏠 Home</a>
+        <a href="/workstations">💻 Workstations</a>
+        <a href="/logout">🚪 Logout</a>
+    </div>
+</div>
+
+<h3>💻 Workstation Details</h3>
+<p style="color:#64748b; margin-bottom:20px;">Real-time monitoring of all workstations</p>
+
+<div class="dashboard">
+
+{% for ws in workstations %}
+
+<div class="card">
+
+    <div class="card-header">
+        <h3>{{ ws.name }}</h3>
+        <span class="status-{{ ws.status|lower }}">● {{ ws.status }}</span>
+    </div>
+
+    <div class="card-body">
+
+        <!-- RAM Usage -->
+        <div class="metric">
+            <div class="metric-label">
+                <span>💾 RAM Usage</span>
+                <span class="metric-value">{{ "%.1f"|format(ws.ram) }}%</span>
+            </div>
+            <div class="progress">
+                <div class="bar"
+                     style="width:{{ ws.ram }}%;
+                     background:{% if ws.ram > 85 %}#ef4444{% elif ws.ram > 70 %}#f97316{% elif ws.ram > 50 %}#eab308{% else %}#10b981{% endif %};">
+                </div>
+            </div>
+        </div>
+
+        <!-- CPU Usage -->
+        <div class="metric">
+            <div class="metric-label">
+                <span>⚡ CPU Usage</span>
+                <span class="metric-value">{{ "%.1f"|format(ws.cpu) }}%</span>
+            </div>
+            <div class="progress">
+                <div class="bar" 
+                     style="width:{{ ws.cpu }}%;
+                     background:{% if ws.cpu > 80 %}#ef4444{% elif ws.cpu > 60 %}#f97316{% elif ws.cpu > 40 %}#eab308{% else %}#3b82f6{% endif %};">
+                </div>
+            </div>
+        </div>
+
+        <!-- DISK USAGE -->
+        <div class="disk-section">
+            <h4>💿 Disk Usage</h4>
+            {% if ws.disk and ws.disk|length > 0 %}
+                {% for d in ws.disk %}
+                    <div class="disk-item">
+                        <div class="disk-header">
+                            <span>Drive {{ d.Drive }}</span>
+                            <span>
+                                {{ "%.1f"|format(d.UsedPercent) }}% used
+                                {% if d.UsedPercent > 90 %}
+                                    <span class="badge badge-danger">Critical</span>
+                                {% elif d.UsedPercent > 80 %}
+                                    <span class="badge badge-warning">Warning</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="progress">
+                            <div class="bar" 
+                                 style="width:{{ d.UsedPercent }}%;
+                                 background:{% if d.UsedPercent > 90 %}#ef4444{% elif d.UsedPercent > 80 %}#f97316{% else %}#eab308{% endif %};">
+                            </div>
+                        </div>
+                        <div class="disk-details">
+                            <span>Free: {{ "%.1f"|format(d.FreeSpace) }} GB</span>
+                            <span>Used: {{ "%.1f"|format(d.UsedSpace) }} GB</span>
+                            <span>Total: {{ "%.1f"|format(d.TotalSize) }} GB</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">No disk data available</div>
+            {% endif %}
+        </div>
+
+        <!-- TOP PROCESSES -->
+        <div class="process-section">
+            <h4>📊 Top Processes by CPU</h4>
+            {% if ws.topProcesses and ws.topProcesses|length > 0 %}
+                <ul class="process-list">
+                    {% for p in ws.topProcesses[:5] %}
+                        <li>
+                            <span class="process-name">{{ p.Name }}</span>
+                            <span class="process-cpu">{{ "%.1f"|format(p.CPU) }}% CPU</span>
+                        </li>
+                    {% endfor %}
+                    {% if ws.topProcesses|length > 5 %}
+                        <li style="color:#64748b; font-size:10px; text-align:center;">
+                            + {{ ws.topProcesses|length - 5 }} more processes
+                        </li>
+                    {% endif %}
+                </ul>
+            {% else %}
+                <div class="empty-state">No process data available</div>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</body>
+</html>
