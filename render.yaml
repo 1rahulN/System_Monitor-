@@ -1,0 +1,27 @@
+
+## File 5: `render.yaml` (Optional but recommended)
+
+```yaml
+services:
+  - type: web
+    name: system-monitor
+    runtime: python
+    plan: free
+    autoDeploy: true
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: system-monitor-db
+          property: connectionString
+    
+databases:
+  - name: system-monitor-db
+    databaseName: system_monitor
+    user: system_monitor_user
+    plan: free
