@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>{{ title }}</title>
+
+<meta http-equiv="refresh" content="10">
+
+<style>
+body{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background:#f0f4f8;
+    padding:15px;
+    margin:0;
+}
+
+/* NAVBAR */
+.navbar{
+    background:#1e293b;
+    color:white;
+    padding:15px 20px;
+    border-radius:8px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+    box-shadow:0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar a{
+    color:white;
+    text-decoration:none;
+    margin-left:15px;
+    font-size:14px;
+    padding:5px 10px;
+    border-radius:4px;
+    transition:background 0.3s;
+}
+
+.navbar a:hover{
+    background:#2d3a4f;
+}
+
+/* SUMMARY BOX */
+.summary{
+    display:flex;
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.box{
+    background:white;
+    padding:12px 20px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:bold;
+    box-shadow:0 1px 3px rgba(0,0,0,0.1);
+    flex:1;
+    text-align:center;
+}
+
+.box span{
+    display:block;
+    font-size:24px;
+    margin-top:5px;
+    color:#1e293b;
+}
+
+/* TABLE */
+.table-container{
+    overflow-x: auto;
+    background:white;
+    border-radius:8px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.1);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+}
+
+th, td{
+    padding:12px;
+    text-align:left;
+    border-bottom:1px solid #e2e8f0;
+}
+
+th{
+    background:#e2e8f0;
+    font-weight:600;
+    color:#1e293b;
+}
+
+tr:hover{
+    background:#f8fafc;
+}
+
+/* Status badges */
+.status-badge{
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:4px;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.status-online{
+    background:#d1fae5;
+    color:#065f46;
+}
+
+.status-offline{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+/* Apps lists */
+.apps-list{
+    max-width:200px;
+}
+
+.app-item{
+    display:inline-block;
+    background:#e2e8f0;
+    padding:2px 6px;
+    margin:2px;
+    border-radius:4px;
+    font-size:11px;
+}
+
+.idle-app{
+    margin:3px 0;
+    font-size:12px;
+}
+
+.idle-app .app-name{
+    color:#475569;
+}
+
+.idle-time{
+    color:#f97316;
+    font-weight:bold;
+    font-size:10px;
+    margin-left:5px;
+}
+
+.empty-state{
+    color:#94a3b8;
+    font-style:italic;
+    font-size:12px;
+}
+
+/* PAGINATION */
+.pagination{
+    margin-top:20px;
+    text-align:center;
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    align-items:center;
+}
+
+.pagination a{
+    padding:8px 15px;
+    background:#1e293b;
+    color:white;
+    text-decoration:none;
+    border-radius:6px;
+    font-size:14px;
+    transition:background 0.3s;
+}
+
+.pagination a:hover{
+    background:#2d3a4f;
+}
+
+.pagination span{
+    padding:8px 15px;
+    background:#e2e8f0;
+    border-radius:6px;
+    font-size:14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    th, td{
+        padding:8px;
+        font-size:11px;
+    }
+    
+    .apps-list{
+        max-width:150px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+<div><strong>{{ title }}</strong></div>
+<div>
+<a href="/">🏠 Home</a>
+<a href="/workstations">💻 Workstations</a>
+<a href="/logout">🚪 Logout</a>
+</div>
+</div>
+
+<h3>📊 System Overview</h3>
+
+<div class="summary">
+<div class="box">
+    Total Systems
+    <span>{{ total_systems }}</span>
+</div>
+<div class="box">
+    Online
+    <span style="color:#10b981;">{{ online_count }}</span>
+</div>
+<div class="box">
+    Offline
+    <span style="color:#ef4444;">{{ offline_count }}</span>
+</div>
+</div>
+
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Workstation</th>
+<th>Status</th>
+<th>Active Applications</th>
+<th>Idle Applications</th>
+<th>Last Seen</th>
+</tr>
+</thead>
+<tbody>
+
+{% for ws in workstations %}
+<tr>
+<td style="font-weight:bold">{{ ws.name }}</td>
+
+<td>
+    <span class="status-badge status-{{ ws.status|lower }}">
+        ● {{ ws.status }}
+    </span>
+</td>
+
+<!-- ACTIVE APPS -->
+<td class="apps-list">
+    {% if ws.active_apps and ws.active_apps|length > 0 %}
+        {% for app in ws.active_apps %}
+            <span class="app-item">{{ app }}</span>
+        {% endfor %}
+    {% else %}
+        <span class="empty-state">No active apps</span>
+    {% endif %}
+</td>
+
+<!-- IDLE APPS WITH TIME -->
+<td>
+    {% if ws.idle_apps and ws.idle_apps|length > 0 %}
+        {% for app in ws.idle_apps %}
+            <div class="idle-app">
+                <span class="app-name">{{ app.name }}</span>
+                {% if app.idle_time is defined and app.idle_time > 0 %}
+                    <span class="idle-time">(idle: {{ "%.1f"|format(app.idle_time) }}m)</span>
+                {% else %}
+                    <span class="idle-time">(idle)</span>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <span class="empty-state">No idle apps</span>
+    {% endif %}
+</td>
+
+<td style="font-size:11px; color:#64748b;">{{ ws.last_seen }}</td>
+</tr>
+{% endfor %}
+
+</tbody>
+</table>
+</div>
+
+<!-- PAGINATION -->
+{% if total_systems > 10 %}
+<div class="pagination">
+{% if page > 1 %}
+<a href="/?page={{ page-1 }}">← Previous</a>
+{% endif %}
+
+<span>Page {{ page }}</span>
+
+{% if has_next %}
+<a href="/?page={{ page+1 }}">Next →</a>
+{% endif %}
+</div>
+{% endif %}
+
+</body>
+</html>
